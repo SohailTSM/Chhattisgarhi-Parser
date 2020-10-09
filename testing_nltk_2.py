@@ -3,7 +3,7 @@ from nltk.tag import tnt
 from nltk.corpus import indian
 
 text = "रामलाल ह अपन मकान के ढलई करत रिहिस"
-train_data = indian.tagged_sents('/home/tsm/Minor Project/cg_tagged.txt')
+train_data = indian.tagged_sents('/cg_tagged.txt')
 tnt_pos_tagger = tnt.TnT()
 tnt_pos_tagger.train(train_data)
 tagged_words = (tnt_pos_tagger.tag(nltk.word_tokenize(text)))
