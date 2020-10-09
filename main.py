@@ -88,6 +88,6 @@ def main(text):
         r['VP'] = toCNF(vp, 'VP')
         r['NP'] = toCNF(np, 'NP')
         return cykParse(tokens, r)
-    except:
-        return "textError"
+    except Exception as e:
+        return e
     
