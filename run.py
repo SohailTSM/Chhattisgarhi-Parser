@@ -18,3 +18,6 @@ def api():
     return {
         'error' : 'No text input. Use POST method'
     }
+
+if __name__ == '__main__':
+    app.run(threaded=True)
