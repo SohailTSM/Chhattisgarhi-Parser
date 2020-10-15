@@ -61,7 +61,7 @@ def cykParse(w, r):
         return "cykError"
 
 
-text = "हमन राजिम मेला गे रहेन"
+text = "रामलाल ह अपन मकान के ढलई करत रिहिस"
 
 
 def main(text):
@@ -98,11 +98,45 @@ def main(text):
         r['NP'] = toCNF(np, 'NP')
         if vp:
             r['VP'] = toCNF(vp, 'VP')
-        print(r)
+
         r.update(tagged_data)
+        s = """
+        """
+
+        for key, val in r.items():
+            st = ""
+            st += "{} -> ".format(key)
+            for rhs in val:
+                st += " ".join(map(lambda x: x if x.isupper()
+                                   else "'{}'".format(x), rhs))
+                if rhs != val[-1]:
+                    st += " | "
+            s += "\n{}".format(st)
+        grammar = nltk.CFG.fromstring(s)
+        parser = nltk.ChartParser(grammar)
+        # for tree in parser.parse(tokens):
+        #     tree.
+        tree = (list(parser.parse(tokens))[0])
+        a = tree2dict(tree)
+        d = dict2obj(a)
+        print(d)
         return cykParse(tokens, r)
     except Exception as e:
-        return e
+        print(e)
+
+
+def dict2obj(d, key='S', parent=None):
+
+    return {
+        'name': key,
+        'parent': parent,
+        'children': list(map(lambda x: dict2obj(x, list(x.keys())[0], key) if type(x) is dict else {'name': x, 'parent': key}, d[key]))
+    }
+
+
+def tree2dict(tree):
+    return {tree.label(): [tree2dict(t) if isinstance(t, nltk.tree.Tree) else t
+                           for t in tree]}
 
 
 print("\n{}\n".format(text))
