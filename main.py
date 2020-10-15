@@ -3,6 +3,7 @@ import pathlib
 from nltk.tag import tnt
 from nltk.corpus import indian
 
+
 def toCNF(p, key):
     ret = []
     while len(p) > 2:
@@ -10,6 +11,7 @@ def toCNF(p, key):
         p.pop(0)
     ret.append(p)
     return ret
+
 
 def cykParse(w, r):
     n = len(w)
@@ -39,9 +41,10 @@ def cykParse(w, r):
                     for rhs in rule:
 
                         # If a terminal is found
-                        if len(rhs) == 2 and rhs[0] in T[i][k] and rhs[1] in T[k + 1][j]:
+                        if len(rhs) == 2 and rhs[0] in T[i][k] and ((rhs[1] in T[k + 1][j])):
                             T[i][j].add(lhs)
-
+                        elif len(rhs) == 1 and rhs[0] in T[i][k]:
+                            T[i][j].add(lhs)
     # If word can be formed by rules
     # of given grammar
 
@@ -57,7 +60,9 @@ def cykParse(w, r):
         print("\nNo, the given sentence does not belongs to CFG")
         return "cykError"
 
+
 text = "हमन राजिम मेला गे रहेन"
+
 
 def main(text):
     try:
@@ -67,11 +72,18 @@ def main(text):
         tnt_pos_tagger.train(train_data)
         tagged_words = (tnt_pos_tagger.tag(nltk.word_tokenize(text)))
         tags = list(map(lambda x: x[1], tagged_words))
-        np, vp = tags[: tags.index('VM')], tags[tags.index('VM'):]
+        if 'VM' in tags:
+            np, vp = tags[: tags.index('VM')], tags[tags.index('VM'):]
+        elif 'VAUX' in tags:
+            np, vp = tags[: tags.index('VAUX')], tags[tags.index('VAUX'):]
+        else:
+            np = tags
+
         tokens = list(text.split(' '))
         tagged_data = {
             tagged_words[0][1]: [[tagged_words[0][0]]]
         }
+        print("\n{}\n".format(tagged_words))
 
         for i in range(1, len(tagged_words)):
             if tagged_words[i][1] in tagged_data:
@@ -82,12 +94,16 @@ def main(text):
         r = {
             'S': [["NP", "VP"]],
             'NP': [np],
-            'VP': [vp],
         }
-        r.update(tagged_data)
-        r['VP'] = toCNF(vp, 'VP')
         r['NP'] = toCNF(np, 'NP')
+        if vp:
+            r['VP'] = toCNF(vp, 'VP')
+        print(r)
+        r.update(tagged_data)
         return cykParse(tokens, r)
     except Exception as e:
         return e
-    
+
+
+print("\n{}\n".format(text))
+main(text)
